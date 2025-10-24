@@ -1,0 +1,17 @@
+package com.youngmin.sns.config.exceptions
+
+enum class ErrorCode(val code: Int) {
+    INVALID_USAGE(40000),
+
+    USER_NOT_FOUND(40100),
+    INVALID_TOKEN(40101),
+    EXPIRED_TOKEN(40102),
+    INVALID_CREDENTIALS(40103),
+    NOT_AUTHORIZED(40104),
+
+    ROW_NOT_FOUND(40400),
+
+    ROW_ALREADY_EXIST(40900),
+
+    INTERNAL_SERVER_ERROR(50000),
+}
