@@ -1,14 +1,14 @@
 package com.youngmin.sns.domain.entity
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 
 @Entity
-@Table(name = "feed_image")
+@Table(
+    name = "feed_image",
+    indexes = [
+        Index(name = "idx_feedId", columnList = "feedId")
+    ]
+)
 class FeedImage (
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
@@ -18,5 +18,4 @@ class FeedImage (
 
     @Column(nullable = false)
     var imgSrc: String,
-) {
-}
+)

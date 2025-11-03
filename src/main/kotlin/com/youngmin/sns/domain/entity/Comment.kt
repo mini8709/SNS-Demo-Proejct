@@ -1,16 +1,16 @@
 package com.youngmin.sns.domain.entity
 
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "comment")
+@Table(
+    name = "comment",
+    indexes = [
+        Index(name = "idx_feedId_id", columnList = "feedId, id DESC")
+    ]
+)
 class Comment (
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
@@ -27,6 +27,4 @@ class Comment (
     @Column(updatable = false)
     @CreatedDate
     var date: LocalDateTime? = null,
-){
-
-}
+)
