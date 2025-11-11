@@ -24,7 +24,7 @@ class UserService (
                 message = "해당 유저가 존재하지 않습니다."
             )
         }
-3
+
         val followingCount = followRepository.countByFollowerId(followerId = findUser.id!!)
         val followerCount = followRepository.countByFollowingId(followingId = findUser.id!!)
 
