@@ -25,6 +25,7 @@ class JwtAuthenticationFilter(
         filterChain: FilterChain
     ) {
         try {
+            println("=== 요청 URL: ${request.requestURI} ===")
             // 1. Authorization 헤더에서 토큰 추출
             val token = resolveToken(request)
 
@@ -35,22 +36,27 @@ class JwtAuthenticationFilter(
                     val authentication = UsernamePasswordAuthenticationToken(userId, null, emptyList())
                     SecurityContextHolder.getContext().authentication = authentication
                 } else {
+                    println("validate 실패")
                     throw UnauthorizedException(
                         ErrorCode.INVALID_TOKEN,
                         "유효하지 않거나 만료된 토큰입니다."
                     )
                 }
+            } else {
+                println("토큰이 없음")
             }
-
-            filterChain.doFilter(request, response)
         } catch (e: UnauthorizedException) {
             handleUnauthorizedException(response, e)
+            return
         } catch (e: Exception) {
             handleUnauthorizedException(
                 response,
                 UnauthorizedException(ErrorCode.INVALID_TOKEN, "인증 처리 중 오류가 발생했습니다: ${e.message}")
             )
+            return
         }
+
+        filterChain.doFilter(request, response)
     }
 
     private fun handleUnauthorizedException(response: HttpServletResponse, e: UnauthorizedException) {
@@ -69,6 +75,7 @@ class JwtAuthenticationFilter(
 
     private fun resolveToken(request: HttpServletRequest): String? {
         val bearerToken = request.getHeader("Authorization")
+        println("bearerToken: $bearerToken")
         return if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             bearerToken.substring(7)
         } else null

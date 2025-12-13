@@ -8,8 +8,11 @@ import com.youngmin.sns.config.exceptions.UnauthorizedException
 import com.youngmin.sns.controller.dto.request.UserLoginRequestDto
 import com.youngmin.sns.controller.dto.request.UserLogoutRequestDto
 import com.youngmin.sns.controller.dto.request.UserRegisterRequestDto
+import com.youngmin.sns.domain.entity.FollowCount
 import com.youngmin.sns.domain.entity.RefreshToken
 import com.youngmin.sns.domain.entity.User
+import com.youngmin.sns.repository.FollowCountRepository
+import com.youngmin.sns.repository.FollowRepository
 import com.youngmin.sns.repository.RefreshTokenRepository
 import com.youngmin.sns.repository.UserRepository
 import com.youngmin.sns.service.dto.AuthResult
@@ -22,6 +25,7 @@ import java.time.LocalDateTime
 @Service
 class AuthService (
     private val userRepository: UserRepository,
+    private val followCountRepository: FollowCountRepository,
     private val refreshTokenRepository: RefreshTokenRepository,
     private val jwtTokenProvider: JwtTokenProvider,
     private val passwordEncoder: BCryptPasswordEncoder
@@ -58,6 +62,14 @@ class AuthService (
             )
         )
 
+        followCountRepository.save(
+            FollowCount(
+                id = user.id!!,
+                followerCount = 0,
+                followingCount = 0
+            )
+        )
+
         return AuthResult(user, accessToken, refreshToken)
     }
 
@@ -72,7 +84,7 @@ class AuthService (
             )
         }
 
-        if (user.password != passwordEncoder.encode(req.password)) {
+        if (!passwordEncoder.matches(req.password, user.password)) {
             throw UnauthorizedException(
                 errorCode = ErrorCode.INVALID_CREDENTIALS,
                 message = "비밀번호가 일치하지 않습니다."
@@ -82,7 +94,10 @@ class AuthService (
         val accessToken = jwtTokenProvider.generateAccessToken(user.id!!)
         val refreshToken = jwtTokenProvider.generateRefreshToken(user.id!!)
 
-        // Refresh Token DB에 저장
+        // 기존 Refresh Token 삭제 (단일 세션 정책)
+        refreshTokenRepository.deleteByUserId(user.id!!)
+
+        // 새로운 Refresh Token DB에 저장
         refreshTokenRepository.save(
             RefreshToken(
                 userId = user.id!!,
