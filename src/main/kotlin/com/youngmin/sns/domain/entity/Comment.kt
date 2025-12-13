@@ -1,8 +1,6 @@
 package com.youngmin.sns.domain.entity
 
 import jakarta.persistence.*
-import org.springframework.data.annotation.CreatedDate
-import java.time.LocalDateTime
 
 @Entity
 @Table(
@@ -23,8 +21,4 @@ class Comment (
 
     @Column(nullable = false)
     var content: String,
-
-    @Column(updatable = false)
-    @CreatedDate
-    var date: LocalDateTime? = null,
-)
+) : BaseTimeEntity()

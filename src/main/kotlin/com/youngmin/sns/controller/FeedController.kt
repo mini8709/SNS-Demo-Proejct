@@ -35,7 +35,7 @@ class FeedController(
                         writer = it.writer.id!!,
                         name = it.writer.name,
                         feedImgList = it.feedImgList.map { img -> img.imgSrc },
-                        date = it.feed.date!!,
+                        date = it.feed.createdDate!!,
                         commentCount = it.commentCount,
                         likeCount = it.likeCount
                     )
@@ -62,7 +62,7 @@ class FeedController(
                         writer = it.writer.id!!,
                         name = it.writer.name,
                         feedImgList = it.feedImgList.map { img -> img.imgSrc },
-                        date = it.feed.date!!,
+                        date = it.feed.createdDate!!,
                         commentCount = it.commentCount,
                         likeCount = it.likeCount
                     )
@@ -76,7 +76,7 @@ class FeedController(
     fun createFeed(
         @AuthenticationPrincipal userId: Long,
         @RequestBody req: FeedCreateRequestDto
-    ): ResponseEntity<FeedResponseDto> {
+    ): ResponseEntity<FeedResponseDto> {3
         val feedResult = feedService.createFeed(userId, req)
         return ResponseEntity.ok(
             FeedResponseDto(
@@ -85,7 +85,7 @@ class FeedController(
                 writer = feedResult.writer.id!!,
                 name = feedResult.writer.name,
                 feedImgList = feedResult.feedImgList.map { it.imgSrc },
-                date = feedResult.feed.date!!,
+                date = feedResult.feed.createdDate!!,
                 commentCount = feedResult.commentCount,
                 likeCount = feedResult.likeCount
             )
@@ -106,7 +106,7 @@ class FeedController(
                 writer = feedResult.writer.id!!,
                 name = feedResult.writer.name,
                 feedImgList = feedResult.feedImgList.map { it.imgSrc },
-                date = feedResult.feed.date!!,
+                date = feedResult.feed.createdDate!!,
                 commentCount = feedResult.commentCount,
                 likeCount = feedResult.likeCount
             )
@@ -140,7 +140,7 @@ class FeedController(
                         writer = it.comment.writer,
                         name = it.user.name,
                         content = it.comment.content,
-                        date = it.comment.date!!
+                        date = it.comment.createdDate!!
                     )
                 },
                 nextCursor = feedListResult.nextCursor
@@ -163,7 +163,7 @@ class FeedController(
                 writer = commentResult.comment.writer,
                 name = commentResult.user.name,
                 content = commentResult.comment.content,
-                date = commentResult.comment.date!!
+                date = commentResult.comment.createdDate!!
             )
         )
     }
@@ -183,7 +183,7 @@ class FeedController(
                 writer = commentResult.comment.writer,
                 name = commentResult.user.name,
                 content = commentResult.comment.content,
-                date = commentResult.comment.date!!
+                date = commentResult.comment.createdDate!!
             )
         )
     }

@@ -13,7 +13,6 @@ import com.youngmin.sns.domain.entity.Like
 import com.youngmin.sns.repository.CommentRepository
 import com.youngmin.sns.repository.FeedImageRepository
 import com.youngmin.sns.repository.FeedRepository
-import com.youngmin.sns.repository.FollowRepository
 import com.youngmin.sns.repository.LikeRepository
 import com.youngmin.sns.repository.UserRepository
 import com.youngmin.sns.service.dto.CommentListResult
@@ -34,7 +33,7 @@ class FeedService (
     private val commentRepository: CommentRepository,
     private val likeRepository: LikeRepository,
 ){
-    @Transactional
+    @Transactional(readOnly = true)
     fun getUserFeedList(userId: Long, targetUserId: Long, cursor: Long?, size: Int): FeedListResult {
         val user = userRepository.findByIdOrNull(userId)
 
@@ -94,7 +93,7 @@ class FeedService (
         )
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     fun getTimelineFeedList(userId: Long, cursor: Long?, size: Int): FeedListResult {
         val user = userRepository.findByIdOrNull(userId)
 
@@ -296,7 +295,7 @@ class FeedService (
         feedRepository.delete(feed)
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     fun getFeedCommentList(userId: Long, feedId: Long, cursor: Long?, size: Int): CommentListResult {
         val user = userRepository.findByIdOrNull(userId)
 
@@ -513,7 +512,7 @@ class FeedService (
         likeRepository.deleteByFeedIdAndUserId(feed.id!!, user.id!!)
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     fun getFeedLikeList(userId: Long, feedId: Long, cursor: Long?, size: Int): LikeListResult {
         val user = userRepository.findByIdOrNull(userId)
 

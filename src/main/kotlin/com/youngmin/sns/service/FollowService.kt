@@ -1,10 +1,12 @@
 package com.youngmin.sns.service
 
+import com.youngmin.sns.config.exceptions.BadRequestException
 import com.youngmin.sns.config.exceptions.ErrorCode
 import com.youngmin.sns.config.exceptions.NotFoundException
 import com.youngmin.sns.config.exceptions.UnauthorizedException
 import com.youngmin.sns.controller.dto.request.FollowRequestDto
 import com.youngmin.sns.domain.entity.Follow
+import com.youngmin.sns.repository.FollowCountRepository
 import com.youngmin.sns.repository.FollowRepository
 import com.youngmin.sns.repository.UserRepository
 import com.youngmin.sns.service.dto.FollowListResult
@@ -15,10 +17,17 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class FollowService (
     private val followRepository: FollowRepository,
+    private val followCountRepository: FollowCountRepository,
     private val userRepository: UserRepository,
 ){
     @Transactional
     fun followUser(userId: Long, req: FollowRequestDto): Follow {
+        if (req.followingId == userId) {
+            throw BadRequestException(
+                ErrorCode.INVALID_USAGE, "자신을 팔로우할 수 없습니다"
+            )
+        }
+
         val follower = userRepository.findByIdOrNull(userId)
 
         if (follower == null) {
@@ -34,6 +43,24 @@ class FollowService (
                 ErrorCode.ROW_NOT_FOUND, "유저가 존재하지 않습니다."
             )
         }
+
+        val (firstId, secondId) = if (userId < req.followingId) {
+            userId to req.followingId
+        } else {
+            req.followingId to userId
+        }
+
+        val firstCount = followCountRepository.findByIdForUpdate(firstId)!!
+        val secondCount = followCountRepository.findByIdForUpdate(secondId)!!
+
+        val followerCount = if (userId == firstId) firstCount else secondCount
+        val followingCount = if (req.followingId == firstId) firstCount else secondCount
+
+        followerCount.followingCount += 1
+        followingCount.followerCount += 1
+
+        followCountRepository.save(followerCount)
+        followCountRepository.save(followingCount)
 
         return followRepository.save(
             Follow(
@@ -70,6 +97,24 @@ class FollowService (
                 ErrorCode.ROW_NOT_FOUND, "팔로우한 유저가 아닙니다."
             )
         }
+
+        val (firstId, secondId) = if (userId < req.followingId) {
+            userId to req.followingId
+        } else {
+            req.followingId to userId
+        }
+
+        val firstCount = followCountRepository.findByIdForUpdate(firstId)!!
+        val secondCount = followCountRepository.findByIdForUpdate(secondId)!!
+
+        val followerCount = if (userId == firstId) firstCount else secondCount
+        val followingCount = if (req.followingId == firstId) firstCount else secondCount
+
+        followerCount.followingCount -= 1
+        followingCount.followerCount -= 1
+
+        followCountRepository.save(followerCount)
+        followCountRepository.save(followingCount)
 
         followRepository.delete(follow)
     }

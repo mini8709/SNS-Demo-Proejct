@@ -50,6 +50,7 @@ class JwtTokenProvider(
             parseClaims(token)
             true
         } catch (e: Exception) {
+            e.printStackTrace()
             false
         }
     }
